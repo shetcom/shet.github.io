@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Cards</title>
+		<link rel="stylesheet" href="style.css">
+		<style>
+			#eCard{
+				border: 2px solid #aaa;
+				width: 420px;
+				height: 300px;
+				padding: 10px;
+				
+				color: #000;
+				font-size: 20px;
+			}
+			
+			#eImport{
+				border: 2px solid #aaa;
+				color: #00f;
+				background-color: #fff;
+				
+				outline: none;
+				resize: none;
+				
+				width: 180px;
+				height: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div id="header"></div>
+		
+		<div class="content"><div id="topMessage"></div>
+			<h1>Cards</h1>
+			<hr>
+			
+			Review: <span id="eReview">1</span>
+			<br>
+			Layer: <span id="eLayer">1</span>
+			<br><br>
+			Cards Done: <span id="eRemaining">30</span>
+			<br>
+			Card Index In Array: <span id="eCardNum">0</span>
+			<br><br>
+			
+			
+			<div class="l">
+				<div id="eCard">
+					Word.
+					
+					
+				</div>
+			</div>
+			
+			<div class="r">
+				<div id="import">
+					Import card deck here:
+					<br><br>
+					
+					<table>
+						<tr>
+							<td>
+								<textarea id="eImport"></textarea>
+							</td>
+							<td>
+								<button onclick="javascript:importDeck(die.value);">woosh</button>
+								<br><br><b>.txt:</b><br>
+								<input type="file" name="inputfile" id="inputfile" style="width: 100px;">
+								<br><br><b>save a<br>.txt:</b><br>
+								<button onclick="javascript:download('ttcards.txt',die.value);">download</button>
+							</td>
+						</tr>
+					</table>
+					
+					<br><br>
+					<a href="about_cards.html">About Cards Tool</a><br>
+					<small>includes customer reviews!</small>
+					
+				</div>
+			</div>
+			
+			<div class="c"></div>
+			
+			<br>
+			<span id="eAction">&nbsp;</span>
+			<hr>
+			
+			<!-- SCRIPT! -->
+			<script>
+				// Getting HTML elements
+				var reviewElem = document.getElementById("eReview");
+				var layerElem = document.getElementById("eLayer");
+				var remainElem = document.getElementById("eRemaining");
+				
+				var cardElem = document.getElementById("eCard");
+				var cardNumElem = document.getElementById("eCardNum");
+				var die = document.getElementById("eImport");
+				var act = document.getElementById("eAction");
+				
+				// Front of the deck
+				var front = [
+				"Import Your Cards."
+				];
+				
+				// Back of the deck
+				var back = [
+				"Definition"
+				];
+				
+				// Front of the review deck
+				var rfront = [];
+				
+				// Back of the review deck
+				var rback = [];
+				
+				// To Review (list of indexes from deck to review)
+				var toReview = [];
+				
+				// Store Deck (used to store the original deck, which is switched to when every review layer is complete)
+				var sfront = [];
+				var sback = [];
+				
+				// Stats
+				var review = 1;
+				var layer = 1;
+				var cardsLeft = front.length;
+				var cardNum = 0;
+				
+				var showBack = false;
+				var studying = true; 
+				var deckImported = false;
+				
+				cardElem.innerHTML = front[cardNum];
+				remainElem.innerHTML = cardsLeft;
+				
+				// Keyboard Input
+				document.addEventListener("keydown",function(event){
+					if (deckImported){
+						switch (event.keyCode){
+							case 32:{cardFlip();break;}
+							case 80:{cardCorrect();break;}
+							case 79:{cardWrong();break;}
+							case 84:{deckShuffle();break;}
+							case 89:{deckOverwrite();break;}
+						}
+					}
+				});
+				
+				// Importing Deck
+				var count, state, c, i;
+				function importDeck(d){
+					count = 0;
+					state = 0;
+					
+					front = [];
+					back = [];
+					
+					for (i = 0; i < d.length; i ++){
+						c = d[i];
+						count ++;
+						
+						if (state == 0){
+							if (c == "\n" || i == d.length-1){
+								front.push(d.substr(i-count+1,count));
+								count = 0;
+								
+								state = 1;
+							}
+						} else {
+							if (c == "\n" || i == d.length-1){
+								back.push(d.substr(i-count+1,count));
+								count = 0;
+								
+								state = 0;
+							}
+						}
+					}
+					
+					cardRefresh();
+					
+					// Saving original deck
+					sfront = front.slice();
+					sback = back.slice();
+					
+					deckImported = true;
+				}
+				
+				// Flipping Card
+				function cardFlip(){
+					if (studying){
+						if (showBack){
+							// Showing Front
+							showBack = false;
+							cardElem.style.color = "#000";
+							
+							cardElem.innerHTML = front[cardNum];	
+						} else {
+							// Showing Back
+							showBack = true;
+							cardElem.style.color = "#00f";
+							
+							cardElem.innerHTML = "<br>"+back[cardNum];
+						}
+					}
+				}
+				
+				// Refreshing HTML of card element
+				function cardRefresh(){
+					if (studying){
+						cardFlip();cardFlip();
+					}
+				}
+				
+				// Switch card
+				function cardSwitch(amount){
+					cardNum += amount;
+					cardsLeft += amount;
+					remainElem.innerHTML = cardsLeft;
+					
+					// If Studying, Switch cards
+					if (cardNum < front.length){
+						showBack = false;
+						cardRefresh();
+						
+						cardNumElem.innerHTML = cardNum;
+					} else {
+						// If not studying,
+						studying = false;
+						act.style.color = "#00f";
+						
+						if (toReview.length > 0){
+							// Review Next layer
+							act.innerHTML = "layer #"+layer+" finished.";
+							cardElem.innerHTML = "<br><br><br>Press P to review next layer.";
+							
+							layer ++;
+							layerElem.innerHTML = layer;
+							
+							deckMakeReview();
+						} else {
+							// Review Whole Deck
+							act.innerHTML = "review #"+review+" finished.";
+							cardElem.innerHTML = "<br><br><br>Press P to review again.";
+							review ++;
+							reviewElem.innerHTML = review;
+							
+							front = sfront.slice();
+							back = sback.slice();
+						}
+						
+						showBack = false;
+						cardRefresh();
+					}
+				}
+				
+				// Correct answer
+				function cardCorrect(){
+					if (studying){
+						act.style.color = "#0f0";
+						act.innerHTML = "correct! next card!";
+						
+						cardSwitch(1);
+					} else {
+						if (toReview.length > 0){
+							studying = true;
+							cardNum = 0;
+							cardRefresh();
+							
+						} else {
+							studying = true;
+							cardNum = 0;
+							cardRefresh();
+							
+						}
+					}
+				}
+				
+				// Wrong answer
+				function cardWrong(){
+					if (studying){
+						act.style.color = "#f00";
+						act.innerHTML = "wrong. try again later.";
+						
+						toReview.push(cardNum);
+						cardSwitch(1);
+					}
+				}
+				
+				// Assemble Review Deck
+				function deckMakeReview(){
+					rfront = [];
+					rback = [];
+					
+					for (i = 0; i < toReview.length; i ++){
+						rfront.push(front[toReview[i]]);
+						rback.push(back[toReview[i]]);
+					}
+					
+					front = rfront.slice();
+					back = rback.slice();
+					
+					toReview = [];
+				}
+				
+				// Saving Current Deck as Original
+				function deckOverwrite(){
+					sfront = front.slice();
+					sback = back.slice();
+					act.style.color = "#00f";
+					act.innerHTML = "Deck Overwritten.";
+				}
+				
+				// Deck Shuffling
+				function deckShuffle(){
+					var tempFront = [];
+					var tempBack = [];
+					var pick;
+					
+					
+					for (var i = sfront.length; i > 0; i --){
+						// getting card index to pick
+						pick = Math.floor( Math.random() * (i) );
+						
+						// adding cards to new deck
+						
+						tempFront.push( sfront[pick] );
+						tempBack.push( sback[pick] );
+						
+
+						
+						// removing cards from old deck
+						alert("preparing: "+sfront);
+						alert("removing: "+pick);
+						sfront = removeFromArray(sfront,pick);
+						sback = removeFromArray(sback,pick);
+						alert(sfront);
+						
+					}
+					
+					sfront = tempFront.slice();
+					sback = tempBack.slice();
+					
+					
+					act.style.color = "#00f";
+					act.innerHTML = "Deck Shuffled";
+				}
+				
+				// File Reader
+				document.getElementById('inputfile') 
+				.addEventListener('change', function() { 
+				var fr = new FileReader(); 
+				fr.onload=function(){ 
+					importDeck(fr.result);
+				} 
+				fr.readAsText(this.files[0]); 
+				});
+				
+				// Downloading
+				function download(filename, text) {
+				  var de = document.createElement('a');
+				  de.setAttribute('href', 'data:text/txt;charset=utf-8,' + encodeURIComponent(text));
+				  de.setAttribute('download', filename);
+
+				  de.style.display = 'none';
+				  document.body.appendChild(de);
+
+				  de.click();
+
+				  document.body.removeChild(de);
+				}
+				
+				// Removing From Array
+				function removeFromArray(array, index){
+					var sArray1 = [];
+					var sArray2 = [];
+					var sArrayDone = [];
+					
+					if (array.length > 3){
+						sArray1 = array.slice(index+1,array.length);
+						sArray2 = array.slice(0,index);
+						
+						if (index < array.length-1){sArrayDone.push(sArray1);}
+						if (index > 0){sArrayDone.push(sArray2);}
+					} else {
+						if (index == 0){
+							// first index
+							sArrayDone = array.slice(1,array.length);
+							alert(sArrayDone);
+						} else {
+							if (index == array.length){
+								// final index
+								sArrayDone = array.slice(0,array.length-1);
+								alert(sArrayDone);
+							} else {
+								// middle index
+								sArrayDone = [array[1]];
+								alert(sArrayDone);
+							}
+						}
+					}
+					
+					return sArrayDone;
+				}
+				
+			</script>
+			
+		</div>
+		<div id="footer"></div>
+		<script src="store.js"></script>
+	</body>
+<html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Those Tools Inc</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="header"></div>
+		
+		<div class="content"><div id="topMessage"></div>
+			<hr>
+			
+			<h1>yoosless tool number 1.</h1>
+			use it.
+			
+			<hr>
+			
+			the equation used to convert Celsius to Farenheit:<br>
+			y = 1.73x + 35.1
+			
+			<hr>
+			
+			<div style="vertical-align: top;">
+				1 (main):	l5
+				<textarea id="import1"></textarea>
+				2:	l4
+				<textarea id="import2"></textarea>
+			</div>
+			
+			<br>
+			<button onclick="doo()">calc farenheit</button>
+			<button onclick="doo2()">abs</button>
+			<button onclick="doo3()">% error</button>
+			
+			<hr>
+			
+			<textarea id="output"></textarea>
+			
+			<hr>
+			
+			<script src="importarray.js"></script>
+			<script>
+				var import1 = document.getElementById("import1");
+				var import2 = document.getElementById("import2");
+				
+				function doo(){
+					var array = getImportedArray(import1.value);
+					
+					var ostring = "";
+					var calc = 0;
+					
+					for (var i = 0; i < array.length; i ++){
+						calc = (array[i]*1.73) + 35.1;
+						ostring += "\n"+calc;
+						
+					}
+					
+					document.getElementById("output").value = ostring;
+				}
+				
+				function doo2(){
+					var array = getImportedArray(import1.value);
+					var array2 = getImportedArray(import2.value);
+					
+					var ostring = "";
+					var calc = 0;
+					
+					for (var i = 0; i < array.length; i ++){
+						calc = Math.abs(array[i] - array2[i]);
+						ostring += "\n"+calc;
+						
+					}
+					
+					document.getElementById("output").value = ostring;
+					
+				}
+				
+				function doo3(){
+					var array = getImportedArray(import1.value);
+					var array2 = getImportedArray(import2.value);
+					
+					var ostring = "";
+					var calc = 0;
+					
+					for (var i = 0; i < array.length; i ++){
+						calc = (array[i]/array2[i])*100;
+						ostring += "\n"+calc;
+						
+					}
+					
+					document.getElementById("output").value = ostring;
+					
+				}
+				
+			</script>
+		</div>
+		
+		<div id="footer"></div>
+		<script src="store.js"></script>
+	</body>
+<html>

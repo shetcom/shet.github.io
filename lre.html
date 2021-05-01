@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Linear Regression Equation Tool</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="header"></div>
+		
+		<div class="content"><div id="topMessage"></div>
+			<h1>Linear Regression Equation Tool</h1>
+			
+			<table>
+				<tr style="height: 200px;">
+					<td>
+						Go research linear regression equations by yourself and then use this tool I guess?
+					</td>
+					<td>
+						<img src="dif.jpg">
+					</td>
+				</tr>
+				<tr>
+					<td>
+					IMPORT DATA HERE:
+					<br>
+					<small>(each data point is separated by a comma, line break, or both)</small>
+					<br><br>
+					
+					<textarea id="ix" style="width: 120px; height: 60px;">X</textarea>
+					<textarea id="iy" style="width: 120px; height: 60px;">Y</textarea>
+					<br>
+					<button onclick="importDataSets()">Calculate!</button>
+					
+					</td>
+				</tr>
+			</table>
+			
+			<hr>
+			
+			<textarea id="textbro" style="width: 600px; height: 400px;"></textarea>
+			
+			<script>
+			var show = document.getElementById("textbro");
+			show.value = "result shows up here";
+			
+			var ix = document.getElementById("ix");
+			var iy = document.getElementById("iy");
+			ix.value = "X";
+			iy.value = "Y";
+			
+			var ax = [];
+			var ay = [];
+			var result = [];
+			
+			function getXmultiY(){
+				result = [];
+				for (var i = 0; i < ax.length; i ++){
+					result.push( ax[i] * ay[i] );
+				}
+				return result;
+			}
+			
+			function getXsquared(){
+				result = [];
+				for (var i = 0; i < ax.length; i ++){
+					result.push( ax[i] * ax[i] );
+				}
+				return result;
+			}
+			
+			// importing arrays
+			function getImportedArray(readArray){
+				var i = 0;
+				var nstart = 0;
+				var c = "";
+				
+				newArray = [];
+				
+				// note: when nstart = -4, a the value is about to be set again
+				
+				while (i < readArray.length){
+					c = readArray[i];
+					
+					if (c == "," || c == "\n"){
+						if (nstart != -4){
+							newArray.push(Number(readArray.substr(nstart,i-nstart)));
+						}
+						
+						nstart = -4;
+					} else if (nstart == -4){
+						nstart = i;
+					}
+
+					i ++;
+				}
+				
+				// adding final number after read
+				newArray.push(Number(readArray.substr(nstart,i-nstart)));
+				
+				return newArray;
+			}
+			
+			function calcMean(data){
+				var sum = 0;
+				for (var i = 0; i < data.length; i ++){
+					sum += data[i];
+				}
+				return sum/data.length;
+			}
+			
+			// importing both data sets
+			function importDataSets(){
+				// Resetting Output
+				show.value = "";
+				
+				// Importing x & y
+				ax = getImportedArray(ix.value);
+				ay = getImportedArray(iy.value);
+				
+				
+				
+				// Calculating
+				
+				// calculate mean of x
+				var meanX = calcMean( ax );
+				show.value += "mean of x: \t\t"+meanX;
+				show.value += "\n";
+				
+				// calculate mean of y
+				var meanY = calcMean( ay );
+				show.value += "mean of y: \t\t"+meanY;
+				show.value += "\n";
+				
+				// calculate mean of x*y
+				var meanXY = calcMean( getXmultiY() );
+				show.value += "mean of x*y: \t\t"+meanXY;
+				show.value += "\n";
+				
+				// calculate mean of x^2
+				var meanSquaredX = calcMean( getXsquared() );
+				show.value += "mean of x^2: \t\t"+meanSquaredX;
+				show.value += "\n";
+				
+				// calculate square of mean of x
+				var meanXsquared = meanX * meanX;
+				show.value += "squared mean of x: \t\t"+meanXsquared;
+				show.value += "\n\nsolving...\n";
+				
+				
+				
+				
+				// Solving
+				
+				// solve equation for slope
+				var numerator = ( meanX * meanY ) - meanXY;
+				var denominator = meanSquaredX - meanXsquared;
+				
+				var slope = numerator/denominator;
+				slope *= -1;
+				
+				// final output of slope
+				show.value += "\n";
+				show.value += "slope: \t\t"+slope;
+				
+				
+				
+				
+				// getting y intercept
+				var yint = (-ax[0]*slope)+ay[0];
+				
+				// final equation
+				show.value += "\n\n\n\n";
+				
+				var equation = "y = "+slope+"x + "+yint;
+				show.value += "FINAL EQUATION: \t\t"+equation;
+			}
+			
+			
+			
+			</script>
+		</div>
+		
+		<div id="footer"></div>
+		<script src="store.js"></script>
+	</body>
+<html>

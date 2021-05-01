@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Those Tools Inc</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="header"></div>
+		
+		<div class="content"><div id="topMessage"></div>
+			<hr>
+			<h1>makestuff</h1>
+			<hr>
+			
+			<table><tr>
+				<td>
+					<b>HTML & CSS:</b>
+					<br>
+					<textarea id="aHC" style="width: 300px; height: 200px"></textarea>
+				</td>
+				<td>
+					<b>JAVASCRIPT</b>
+					<br>
+					<textarea id="aJS" style="width: 300px; height: 200px"></textarea>
+				</td>
+			</tr></table>
+			
+			<br><br>
+			
+			<button onclick="assembleStuff()">run</button>
+			
+			
+			<hr>
+			
+			<div id="oHC"></div>
+			<script id="oJS"></script>
+			
+			<hr>
+		</div>
+		
+		<div id="footer"></div>
+		<script src="store.js"></script>
+		<script>
+			var hc = document.getElementById("aHC");
+			var js = document.getElementById("aJS");
+			
+			var output = document.getElementById("oHC");
+			var outputScript = document.getElementById("oJS");
+			
+			function assembleStuff(){
+				output.innerHTML = hc.value;
+				outputScript.innerHTML = js.value;
+			}
+		</script>
+	</body>
+<html>
